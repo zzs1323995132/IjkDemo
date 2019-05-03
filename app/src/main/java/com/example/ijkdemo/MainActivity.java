@@ -6,11 +6,11 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -23,21 +23,21 @@ import java.io.IOException;
 
 import tv.danmaku.ijk.media.player.IMediaPlayer;
 
-public class MainActivity extends AppCompatActivity implements  CompoundButton.OnCheckedChangeListener {
-    private VideoPlayer videoPlayer;
-    private CheckBox checkPlay, checkZoom;
-    private TextView txtStartTime, txtStopTime;
-    private SeekBar seekBar;
+public class MainActivity extends AppCompatActivity implements CompoundButton.OnCheckedChangeListener {
     private View viewStatus;
-    //标记判断视频是否准备完成
-    private boolean flag = false;
+    private RelativeLayout rlVideo;
+    private VideoPlayer videoPlayerVideo;
+    private CheckBox cbPlay, cbZoom;
+    private TextView tvRunTime, tvTotalTime;
+    private SeekBar seekBar;
+    private boolean flag = false; //标记判断视频是否准备完成
     private Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             if (msg.what == 1) {
-                txtStartTime.setText(CommonUtil.formatTime((int) videoPlayer.getCurrentPosition()));
-                seekBar.setProgress((int) videoPlayer.getCurrentPosition());
+                tvRunTime.setText(CommonUtil.formatTime((int) videoPlayerVideo.getCurrentPosition()));
+                seekBar.setProgress((int) videoPlayerVideo.getCurrentPosition());
                 handler.sendEmptyMessageDelayed(1, 1000);
             }
         }
@@ -47,13 +47,47 @@ public class MainActivity extends AppCompatActivity implements  CompoundButton.O
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        initView();
+        setListener();
+    }
+
+    private void initView() {
         StatusBarUtil.setStatusBar(this);
         viewStatus = findViewById(R.id.view_main_status);
         StatusBarUtil.setStatusBarHight(this, viewStatus);
-        videoPlayer = findViewById(R.id.video);
-        videoPlayer.getLayoutParams().height = ScreenUtils.getScreenHeight(this) / 3;
-        videoPlayer.getLayoutParams().width = ScreenUtils.getScreenWidth(this);
-        videoPlayer.setVideoListener(new VideoListener() {
+        rlVideo = findViewById(R.id.rl_main_video);
+        rlVideo.getLayoutParams().height = ScreenUtils.getScreenHeight(this) / 3;
+        rlVideo.getLayoutParams().width = ScreenUtils.getScreenWidth(this);
+        cbPlay = findViewById(R.id.cb_main_play);
+        cbZoom = findViewById(R.id.cb_main_zoom);
+        tvRunTime = findViewById(R.id.tv_main_run_time);
+        tvTotalTime = findViewById(R.id.tv_main_total_time);
+        seekBar = findViewById(R.id.seekbar_progress);
+        videoPlayerVideo = findViewById(R.id.video_player_main_video);
+    }
+
+    private void setListener() {
+        cbPlay.setOnCheckedChangeListener(this);
+        cbZoom.setOnCheckedChangeListener(this);
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                // videoPlayer.seekTo((int) videoPlayer.getCurrentPosition());
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                // 开始拖拽
+                videoPlayerVideo.pause();
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                // 停止拖拽
+                videoPlayerVideo.pause();
+            }
+        });
+        videoPlayerVideo.setVideoListener(new VideoListener() {
             @Override
             public void onBufferingUpdate(IMediaPlayer iMediaPlayer, int i) {
 
@@ -76,11 +110,11 @@ public class MainActivity extends AppCompatActivity implements  CompoundButton.O
 
             @Override
             public void onPrepared(IMediaPlayer iMediaPlayer) {
-                videoPlayer.start();
+                videoPlayerVideo.start();
                 //mp.start();
                 flag = true;
                 //设置时间
-                txtStopTime.setText(CommonUtil.formatTime((int) iMediaPlayer.getDuration()));
+                tvTotalTime.setText(CommonUtil.formatTime((int) iMediaPlayer.getDuration()));
                 //设置总进度
                 seekBar.setMax((int) iMediaPlayer.getDuration());
             }
@@ -95,64 +129,29 @@ public class MainActivity extends AppCompatActivity implements  CompoundButton.O
 
             }
         });
-        videoPlayer.setPath("http://vf2.mtime.cn/Video/2016/05/12/mp4/160512105140329960.mp4");
+        videoPlayerVideo.setPath("http://vf2.mtime.cn/Video/2016/05/12/mp4/160512105140329960.mp4");
         try {
-            videoPlayer.load();
+            videoPlayerVideo.load();
         } catch (IOException e) {
             Toast.makeText(this, "播放失败", Toast.LENGTH_SHORT);
             e.printStackTrace();
         }
-        initView();
-        setListener();
-    }
-
-    private void initView() {
-        checkPlay = findViewById(R.id.checkbox_play);
-        checkZoom = findViewById(R.id.checkbox_zoom);
-        txtStartTime = findViewById(R.id.txt_starttime);
-        txtStopTime = findViewById(R.id.txt_totletile);
-        seekBar = findViewById(R.id.seekbar_progress);
-        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                // videoPlayer.seekTo((int) videoPlayer.getCurrentPosition());
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-                // 开始拖拽
-                videoPlayer.pause();
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                // 停止拖拽
-                videoPlayer.pause();
-            }
-        });
-
-    }
-
-    private void setListener() {
-        checkPlay.setOnCheckedChangeListener(this);
-        checkZoom.setOnCheckedChangeListener(this);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        videoPlayer.start();
+        videoPlayerVideo.start();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        videoPlayer.pause();
+        videoPlayerVideo.pause();
     }
 
 
-    //============================
-    private void fullscreen(boolean enable) {
+    private void showStatusBar(boolean enable) {
         if (enable) { //显示状态栏
             WindowManager.LayoutParams lp = getWindow().getAttributes();
             lp.flags |= WindowManager.LayoutParams.FLAG_FULLSCREEN;
@@ -169,22 +168,21 @@ public class MainActivity extends AppCompatActivity implements  CompoundButton.O
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         switch (buttonView.getId()) {
-            case R.id.checkbox_play:
+            case R.id.cb_main_play:
                 if (isChecked && flag) {
-                    videoPlayer.start();
+                    videoPlayerVideo.start();
                     handler.sendEmptyMessageDelayed(1, 1000);
                 } else {
-                    videoPlayer.pause();
+                    videoPlayerVideo.pause();
                 }
                 break;
-            case R.id.checkbox_zoom:
+            case R.id.cb_main_zoom:
                 if (isChecked) {
                     getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
                     setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
                 } else {
                     getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
                     setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-
                 }
                 break;
         }
@@ -194,22 +192,20 @@ public class MainActivity extends AppCompatActivity implements  CompoundButton.O
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         if (this.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            fullscreen(false);
+            showStatusBar(false);
             viewStatus.setVisibility(View.GONE);
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN
                     , WindowManager.LayoutParams.FLAG_FULLSCREEN);
-            Log.i(">>>width", ">>>" + ScreenUtils.getScreenWidth(this));
-            Log.i(">>>height", ">>>" + ScreenUtils.getScreenHeight(this));
-            videoPlayer.getLayoutParams().height = ScreenUtils.getScreenHeight(this);
-            videoPlayer.getLayoutParams().width = ScreenUtils.getScreenWidth(this);
+            rlVideo.getLayoutParams().height = ScreenUtils.getScreenHeight(this);
+            rlVideo.getLayoutParams().width = ScreenUtils.getScreenWidth(this);
         } else if (this.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-            fullscreen(true);
+            showStatusBar(true);
             viewStatus.setVisibility(View.VISIBLE);
             WindowManager.LayoutParams attrs = getWindow().getAttributes();
             getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
             getWindow().setAttributes(attrs);
-            videoPlayer.getLayoutParams().height = ScreenUtils.getScreenHeight(this) / 3;
-            videoPlayer.getLayoutParams().width = ScreenUtils.getScreenWidth(this);
+            rlVideo.getLayoutParams().height = ScreenUtils.getScreenHeight(this) / 3;
+            rlVideo.getLayoutParams().width = ScreenUtils.getScreenWidth(this);
         }
     }
 }

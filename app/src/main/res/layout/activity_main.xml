@@ -13,13 +13,14 @@
         android:background="@color/primary_green" />
 
     <RelativeLayout
+        android:id="@+id/rl_main_video"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <com.example.ijkdemo.VideoPlayer
-            android:id="@+id/video"
+            android:id="@+id/video_player_main_video"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="match_parent" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -30,13 +31,13 @@
             android:orientation="horizontal">
 
             <CheckBox
-                android:id="@+id/checkbox_play"
+                android:id="@+id/cb_main_play"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:button="@drawable/check_playstate" />
 
             <TextView
-                android:id="@+id/txt_starttime"
+                android:id="@+id/tv_main_run_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="00:00"
@@ -49,14 +50,14 @@
                 android:layout_weight="1" />
 
             <TextView
-                android:id="@+id/txt_totletile"
+                android:id="@+id/tv_main_total_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="00:00"
                 android:textColor="#ffffff" />
 
             <CheckBox
-                android:id="@+id/checkbox_zoom"
+                android:id="@+id/cb_main_zoom"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:button="@drawable/check_zoomstate" />
