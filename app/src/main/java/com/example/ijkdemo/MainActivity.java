@@ -30,7 +30,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
     private CheckBox cbPlay, cbZoom;
     private TextView tvRunTime, tvTotalTime;
     private SeekBar seekBar;
-    private boolean flag = false; //标记判断视频是否准备完成
+    private boolean isPlayer = false; //标记判断视频是否准备完成
     private Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -112,7 +112,8 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
             public void onPrepared(IMediaPlayer iMediaPlayer) {
                 videoPlayerVideo.start();
                 //mp.start();
-                flag = true;
+                isPlayer = true;
+                handler.sendEmptyMessageDelayed(1, 1000);
                 //设置时间
                 tvTotalTime.setText(CommonUtil.formatTime((int) iMediaPlayer.getDuration()));
                 //设置总进度
@@ -169,11 +170,11 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         switch (buttonView.getId()) {
             case R.id.cb_main_play:
-                if (isChecked && flag) {
+                if (isChecked && isPlayer) {
+                    videoPlayerVideo.pause();
+                } else {
                     videoPlayerVideo.start();
                     handler.sendEmptyMessageDelayed(1, 1000);
-                } else {
-                    videoPlayerVideo.pause();
                 }
                 break;
             case R.id.cb_main_zoom:
