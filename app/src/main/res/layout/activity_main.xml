@@ -5,11 +5,13 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context=".MainActivity">
+
     <View
         android:id="@+id/view_main_status"
         android:layout_width="match_parent"
         android:layout_height="24dp"
         android:background="@color/primary_green" />
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -17,13 +19,13 @@
         <com.example.ijkdemo.VideoPlayer
             android:id="@+id/video"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="wrap_content" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="60dp"
             android:layout_alignParentBottom="true"
-            android:background="#000000"
+            android:background="#33000000"
             android:gravity="center"
             android:orientation="horizontal">
 

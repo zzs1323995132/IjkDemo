@@ -23,7 +23,7 @@ import java.io.IOException;
 
 import tv.danmaku.ijk.media.player.IMediaPlayer;
 
-public class MainActivity extends AppCompatActivity implements VideoListener, CompoundButton.OnCheckedChangeListener {
+public class MainActivity extends AppCompatActivity implements  CompoundButton.OnCheckedChangeListener {
     private VideoPlayer videoPlayer;
     private CheckBox checkPlay, checkZoom;
     private TextView txtStartTime, txtStopTime;
@@ -51,7 +51,50 @@ public class MainActivity extends AppCompatActivity implements VideoListener, Co
         viewStatus = findViewById(R.id.view_main_status);
         StatusBarUtil.setStatusBarHight(this, viewStatus);
         videoPlayer = findViewById(R.id.video);
-        videoPlayer.setVideoListener(this);
+        videoPlayer.getLayoutParams().height = ScreenUtils.getScreenHeight(this) / 3;
+        videoPlayer.getLayoutParams().width = ScreenUtils.getScreenWidth(this);
+        videoPlayer.setVideoListener(new VideoListener() {
+            @Override
+            public void onBufferingUpdate(IMediaPlayer iMediaPlayer, int i) {
+
+            }
+
+            @Override
+            public void onCompletion(IMediaPlayer iMediaPlayer) {
+
+            }
+
+            @Override
+            public boolean onError(IMediaPlayer iMediaPlayer, int i, int i1) {
+                return false;
+            }
+
+            @Override
+            public boolean onInfo(IMediaPlayer iMediaPlayer, int i, int i1) {
+                return false;
+            }
+
+            @Override
+            public void onPrepared(IMediaPlayer iMediaPlayer) {
+                videoPlayer.start();
+                //mp.start();
+                flag = true;
+                //设置时间
+                txtStopTime.setText(CommonUtil.formatTime((int) iMediaPlayer.getDuration()));
+                //设置总进度
+                seekBar.setMax((int) iMediaPlayer.getDuration());
+            }
+
+            @Override
+            public void onSeekComplete(IMediaPlayer iMediaPlayer) {
+
+            }
+
+            @Override
+            public void onVideoSizeChanged(IMediaPlayer iMediaPlayer, int i, int i1, int i2, int i3) {
+
+            }
+        });
         videoPlayer.setPath("http://vf2.mtime.cn/Video/2016/05/12/mp4/160512105140329960.mp4");
         try {
             videoPlayer.load();
@@ -107,47 +150,6 @@ public class MainActivity extends AppCompatActivity implements VideoListener, Co
         videoPlayer.pause();
     }
 
-    @Override
-    public void onBufferingUpdate(IMediaPlayer iMediaPlayer, int i) {
-
-    }
-
-    @Override
-    public void onCompletion(IMediaPlayer iMediaPlayer) {
-
-    }
-
-    @Override
-    public boolean onError(IMediaPlayer iMediaPlayer, int i, int i1) {
-        return false;
-    }
-
-    @Override
-    public boolean onInfo(IMediaPlayer iMediaPlayer, int i, int i1) {
-        return false;
-    }
-
-    @Override
-    public void onPrepared(IMediaPlayer iMediaPlayer) {
-        videoPlayer.start();
-        //mp.start();
-        flag = true;
-        //设置时间
-        txtStopTime.setText(CommonUtil.formatTime((int) iMediaPlayer.getDuration()));
-        //设置总进度
-        seekBar.setMax((int) iMediaPlayer.getDuration());
-
-    }
-
-    @Override
-    public void onSeekComplete(IMediaPlayer iMediaPlayer) {
-
-    }
-
-    @Override
-    public void onVideoSizeChanged(IMediaPlayer iMediaPlayer, int i, int i1, int i2, int i3) {
-
-    }
 
     //============================
     private void fullscreen(boolean enable) {
@@ -200,15 +202,12 @@ public class MainActivity extends AppCompatActivity implements VideoListener, Co
             Log.i(">>>height", ">>>" + ScreenUtils.getScreenHeight(this));
             videoPlayer.getLayoutParams().height = ScreenUtils.getScreenHeight(this);
             videoPlayer.getLayoutParams().width = ScreenUtils.getScreenWidth(this);
-
-
         } else if (this.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
             fullscreen(true);
             viewStatus.setVisibility(View.VISIBLE);
             WindowManager.LayoutParams attrs = getWindow().getAttributes();
             getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
             getWindow().setAttributes(attrs);
-
             videoPlayer.getLayoutParams().height = ScreenUtils.getScreenHeight(this) / 3;
             videoPlayer.getLayoutParams().width = ScreenUtils.getScreenWidth(this);
         }
