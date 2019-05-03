@@ -6,6 +6,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.CheckBox;
@@ -72,7 +73,13 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                // videoPlayer.seekTo((int) videoPlayer.getCurrentPosition());
+                //videoPlayerVideo.seekTo((int) videoPlayerVideo.getCurrentPosition());
+
+                if (fromUser) {
+                    videoPlayerVideo.seekTo(progress);
+                }
+                Log.e("1233===","====progress==="+progress);
+                Log.e("1233===","===getCurrentPosition===="+(int) videoPlayerVideo.getCurrentPosition());
             }
 
             @Override
@@ -84,7 +91,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 // 停止拖拽
-                videoPlayerVideo.pause();
+                videoPlayerVideo.start();
             }
         });
         videoPlayerVideo.setVideoListener(new VideoListener() {
